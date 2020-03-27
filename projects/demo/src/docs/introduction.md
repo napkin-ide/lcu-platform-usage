@@ -1,6 +1,6 @@
-# LcuPlatformUsage
+# *Low-Code Unit&trade;* Introduction
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.0.
+A *Low-Code Unit&trade;* is a building block that helps make up an Application. 
 
 ## Development server
 
