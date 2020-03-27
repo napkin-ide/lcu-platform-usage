@@ -1,0 +1,45 @@
+<table mat-table [dataSource]="UserData" class="data-grid">
+
+    <!--- Note that these columns can be defined in any order.
+          The actual rendered columns are set as a property on the row definition" -->
+  
+    <!-- Position Column -->
+    <ng-container matColumnDef="Email">
+      <th mat-header-cell *matHeaderCellDef> Email </th>
+      <td mat-cell *matCellDef="let element"> {{element.Email}} </td>
+    </ng-container>
+  
+    <!-- Username Column -->
+    <ng-container matColumnDef="Username">
+      <th mat-header-cell *matHeaderCellDef> Username </th>
+      <td mat-cell *matCellDef="let element"> {{element.Username}} </td>
+    </ng-container>
+  
+    <!-- FreeTrial Column -->
+    <ng-container matColumnDef="FreeTrialSignUp">
+      <th mat-header-cell *matHeaderCellDef> Free Trial Sign Up Date </th>
+      <td mat-cell *matCellDef="let element"> {{element.FreeTrialSignUp | date:'M/d/yyyy'}} </td>
+    </ng-container>
+  
+    <!-- Expiration Column -->
+    <ng-container matColumnDef="ExpirationDate">
+      <th mat-header-cell *matHeaderCellDef> Expiration Date </th>
+      <td mat-cell *matCellDef="let element"> {{element.ExpirationDate | date:'M/d/yyyy'}} </td>
+    </ng-container>
+  
+    <!-- Paid Column -->
+    <ng-container matColumnDef="PaidSignUpDate">
+      <th mat-header-cell *matHeaderCellDef> Paid Sign Up Date </th>
+      <td mat-cell *matCellDef="let element"> 
+        <div *ngIf="element.PaidSignUpDate">
+          {{element.PaidSignUpDate | date:'M/d/yyyy'}}
+      </div> 
+  
+      <div *ngIf="!element.PaidSignUpDate"> - </div> 
+  
+    </td>
+    </ng-container>
+  
+    <tr mat-header-row *matHeaderRowDef="DisplayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: DisplayedColumns;"></tr>
+  </table>
