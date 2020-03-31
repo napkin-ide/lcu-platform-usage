@@ -6,7 +6,6 @@ import { FathymSharedModule, MaterialModule } from '@lcu/common';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './controls/home/home.component';
-import { DocumentationComponent } from './controls/documentation/documentation.component';
 import { LcuDocumentationModule } from '@lowcodeunit/lcu-documentation-common';
 import { LcuPlatformUsageModule } from '@napkin-ide/lcu-platform-usage-common';
 
@@ -14,7 +13,6 @@ import { LcuPlatformUsageModule } from '@napkin-ide/lcu-platform-usage-common';
   declarations: [
     AppComponent,
     HomeComponent,
-    DocumentationComponent
   ],
   imports: [
     AppRoutingModule,
@@ -23,8 +21,7 @@ import { LcuPlatformUsageModule } from '@napkin-ide/lcu-platform-usage-common';
     FathymSharedModule,
     MaterialModule,
     FlexLayoutModule,
-    LcuDocumentationModule.forRoot(),
-    LcuPlatformUsageModule.forRoot()
+    LcuPlatformUsageModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent],

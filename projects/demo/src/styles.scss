@@ -44,25 +44,25 @@
 }
 
 .fathym-arctic-theme {
-  $theme: fathym-arctic-theme(true);
+  $theme: fathym-arctic-theme();
   @include theme-setup($theme);
   @include primary-logo(thinky-full-logo, $theme, 1);
 }
 
 .fathym-contrast-theme {
-  $theme: fathym-contrast-theme(true);
+  $theme: fathym-contrast-theme();
   @include theme-setup($theme);
   @include primary-logo(thinky-full-logo, $theme, 1);
 }
 
 .fathym-cool-candy-theme {
-  $theme: fathym-cool-candy-theme(true);
+  $theme: fathym-cool-candy-theme();
   @include theme-setup($theme);
   @include primary-logo(thinky-full-logo, $theme, 1);
 }
 
 .fathym-flipper-theme {
-  $theme: fathym-flipper-theme(true);
+  $theme: fathym-flipper-theme();
   @include theme-setup($theme);
   @include primary-logo(thinky-full-logo, $theme, 1);
 }
@@ -74,7 +74,7 @@
 }
 
 .fathym-sea-green-theme {
-  $theme: fathym-sea-green-theme(true);
+  $theme: fathym-sea-green-theme();
   @include theme-setup($theme);
   @include primary-logo(thinky-full-logo, $theme, 1);
 }
