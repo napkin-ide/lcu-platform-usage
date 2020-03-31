@@ -5,6 +5,7 @@ import { UserInfoModel } from '../../models/user-info.model';
 import { DataGridModel } from '../../models/data-grid.model';
 import { ColumnDefinition,  DataGridPagination, DataGridFeatures, DataGridConfig } from '@lowcodeunit/data-grid';
 import { of } from 'rxjs/internal/observable/of';
+import { BoxInfoModel } from '../../models/box-info.model';
 
 export class LcuPlatformUsagePlatformUsageElementState { }
 
@@ -26,6 +27,61 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
   public DisplayedColumns: Array<string>;
 
   public DataGrid: DataGridModel;
+
+  /**
+   * The list of Active Free trial users coming from state
+   */
+  public ActiveUsers: Array<UserInfoModel>;
+
+/**
+ * The list of expired users coming from state
+ */
+  public ExpiredUsers: Array<UserInfoModel>;
+
+/**
+ * The list of paid subscribers coming from state
+ */
+  public PaidSubscribers: Array<UserInfoModel>;
+
+/**
+ * The Total amount of users who have signed up for the free trial 
+ */
+  public TotalFreeTrialSignUps: number;
+
+  /**
+   * The number of users who paid for subscription after using the free trial
+   */
+  public FreeToPaid: number;
+
+  /**
+   * The number of users who skipped the free trial and went straight to a paid subscription
+   */
+  public StraightToPaid: number;
+
+  /**
+   * The Percentage of paid subscribers who used the free trial
+   */
+  public FreeToPaidPercentage: string;
+
+  /**
+   * The Percentage of paid subscribers who skipped the free trial
+   */
+  public StraightToPaidPercentage: string;
+
+  /**
+   * The info that is passed to the totals box for active users
+   */
+  public ActiveUsersStats: Array<BoxInfoModel>;
+
+  /**
+   * The info that is passed to the totals box for expired users
+   */
+  public ExpiredUsersStats: Array<BoxInfoModel>;
+
+  /**
+   * The info that is passed to the totals box for paid subscribers
+   */
+  public PaidSubscribersStats: Array<BoxInfoModel>;
 
   /**
  * Sets column names and order for active free trial users
@@ -91,6 +147,11 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
   //  Constructors
   constructor(protected injector: Injector) {
     super(injector);
+    this.PaidSubscribers = new Array<UserInfoModel>();
+    this.ActiveUsers = new Array<UserInfoModel>();
+    this.ExpiredUsers = new Array<UserInfoModel>();
+    this.StraightToPaid = 0;
+    this.FreeToPaid = 0;
     //   this.DataGrid = new DataGridModel();
     //   this.DataGrid.UserData = Constants.USER_DATA;
     //   this.DataGrid.DisplayedColumns = ['Email', 'Username', 'FreeTrialSignUp', 'ExpirationDate', 'PaidSignUpDate'];
@@ -102,6 +163,8 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     this.SetActiveGridParameters();
     this.SetExpiredGridParameters();
     this.SetPaidGridParameters();
+    this.SetTotals();
+    this.SetUpBoxInfo();
   }
 
   //  API Methods
@@ -109,6 +172,7 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
   //  Helpers
   public SetPaidGridParameters(): void {
     // hardcoding values for demo, real world these would be pushed in
+    this.PaidSubscribers = Constants.PAID_DATA;
     let paidData = of(Constants.PAID_DATA);
     console.log("paidData: ", Constants.PAID_DATA)
 
@@ -130,11 +194,11 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
       ),
       new ColumnDefinition(
         'FreeTrialSignUp',
-        'Free Trial Sign up Date',
+        'Sign up Date',
         true,
         true,
         false,
-        DataPipeConstants.PIPE_DATE
+        DataPipeConstants.PIPE_SHORTDATE
       ),
       new ColumnDefinition(
         'PaidSignUpDate',
@@ -151,14 +215,15 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
 
     // showing grid column headers
     this.PaidGridParameters = new DataGridConfig(paidData, this.paidColumnDefs);
-    debugger;
     console.log("Grid params: ", this.PaidGridParameters)
   }
 
   public SetActiveGridParameters(): void {
 
     // hardcoding values for demo, real world these would be pushed in
-    this.UserData = of(Constants.ACTIVE_DATA);
+    this.ActiveUsers = Constants.ACTIVE_DATA;
+    let activeData = of(Constants.ACTIVE_DATA);
+
 
 
     this.activeColumnDefs = [
@@ -178,11 +243,11 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
       ),
       new ColumnDefinition(
         'FreeTrialSignUp',
-        'Free Trial Sign up Date',
+        'Sign up Date',
         true,
         true,
         false,
-        DataPipeConstants.DATE_FMT
+        DataPipeConstants.PIPE_SHORTDATE
       ),
       new ColumnDefinition(
         'ExpirationDate',
@@ -190,7 +255,7 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
         true,
         true,
         false,
-        DataPipeConstants.DATE_FMT
+        DataPipeConstants.PIPE_SHORTDATE
       ),
       new ColumnDefinition(
         'DaysRemaining',
@@ -205,7 +270,7 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     this.setGridFeatures();
 
     // showing grid column headers
-    this.ActiveGridParameters = new DataGridConfig(this.UserData, this.activeColumnDefs);
+    this.ActiveGridParameters = new DataGridConfig(activeData, this.activeColumnDefs);
     console.log("Grid params: ", this.ActiveGridParameters)
   }
 
@@ -213,6 +278,7 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
   public SetExpiredGridParameters(): void {
 
     // hardcoding values for demo, real world these would be pushed in
+    this.ExpiredUsers = Constants.EXPIRED_DATA;
     let ExpiredData = of(Constants.EXPIRED_DATA);
 
 
@@ -237,7 +303,7 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
         true,
         true,
         false,
-        DataPipeConstants.DATE_FMT
+        DataPipeConstants.PIPE_SHORTDATE
       ),
       new ColumnDefinition(
         'ExpirationDate',
@@ -245,7 +311,7 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
         true,
         true,
         false,
-        DataPipeConstants.DATE_FMT
+        DataPipeConstants.PIPE_SHORTDATE
       )
     ];
 
@@ -273,5 +339,46 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     features.RowColorOdd = 'light-gray';
 
     this.GridFeatures = features;
+  }
+
+  protected SetTotals(){
+    this.SetTotalFreeSignUps();
+    this.CalcPaidVsFree();
+  }
+  protected SetTotalFreeSignUps(){
+    // Using Hard coded values will need to change when state comes in
+    this.TotalFreeTrialSignUps = Constants.EXPIRED_DATA.length + Constants.ACTIVE_DATA.length;
+  }
+
+  protected CalcPaidVsFree(){
+    this.PaidSubscribers.forEach(user => {
+      if(user.FreeTrialSignUp){
+        console.log("free to paid")
+        this.FreeToPaid += 1;
+      }
+      else{
+        this.StraightToPaid +=1;
+      }
+      
+    }
+    
+    );
+    this.FreeToPaidPercentage = Math.round((this.FreeToPaid / this.PaidSubscribers.length)*100).toString() +'%';
+    this.StraightToPaidPercentage = Math.round((this.StraightToPaid / this.PaidSubscribers.length)*100).toString() +'%';
+  }
+
+  protected SetUpBoxInfo(){
+    this.ActiveUsersStats = new Array<BoxInfoModel>();
+    this.ActiveUsersStats.push(new BoxInfoModel("Total Active Users", new Array<string>(this.ActiveUsers.length.toString())));
+
+    this.ExpiredUsersStats = new Array<BoxInfoModel>();
+    this.ExpiredUsersStats.push(new BoxInfoModel("Total Expired Users", new Array<string>(this.ExpiredUsers.length.toString())));
+    this.ExpiredUsersStats.push(new BoxInfoModel("Total Free Trial Sign Ups", new Array<string>(this.TotalFreeTrialSignUps.toString())));
+
+    this.PaidSubscribersStats = new Array<BoxInfoModel>();
+    this.PaidSubscribersStats.push(new BoxInfoModel("Total Paid Subscribers", new Array<string>(this.PaidSubscribers.length.toString())));
+    this.PaidSubscribersStats.push(new BoxInfoModel("Used Free Trial", new Array<string>(this.FreeToPaid.toString() +" (" + this.FreeToPaidPercentage + ")")));
+    this.PaidSubscribersStats.push(new BoxInfoModel("Skipped Free Trial", new Array<string>(this.StraightToPaid.toString() +" ("+ this.StraightToPaidPercentage +")")));
+
   }
 }
