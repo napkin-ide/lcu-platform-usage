@@ -22,17 +22,21 @@ export class UserInfoModel {
     /**
      * The date when the users free trial will expire
      */
-    public ExpirationDate?: Date
+    public ExpirationDate?: Date;
 
     /**
      * When the user signed up for the paid version
      */
-    public PaidSignUpDate?: Date
+    public PaidSignUpDate?: Date;
 
 
     /**
      * the name of the organization that the user belongs to
      */
-    public Organization?: string
+    public Organization?: string;
 
+    /**
+     * Days remaining in the free trial
+     */
+    public DaysRemaining?: number;
 }

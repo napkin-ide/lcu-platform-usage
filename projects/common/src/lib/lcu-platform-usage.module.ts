@@ -8,6 +8,7 @@ import { LcuComponent } from './controls/lcu/lcu.component';
 import { LcuDirective } from './directives/lcu.directive';
 import { LcuPlatformUsagePlatformUsageElementComponent } from './elements/platform-usage/platform-usage.component';
 import { DataGridComponent } from './controls/data-grid/data-grid.component';
+import { DataGridModule} from '@lowcodeunit/data-grid';
 
 @NgModule({
   declarations: [LcuComponent, LcuDirective, LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent],
@@ -17,7 +18,8 @@ import { DataGridComponent } from './controls/data-grid/data-grid.component';
     ReactiveFormsModule,
     FlexLayoutModule,
     MaterialModule,
-    MatTabsModule
+    MatTabsModule,
+    DataGridModule
   ],
   exports: [LcuComponent, LcuDirective, LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent],
   entryComponents: [LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent]
