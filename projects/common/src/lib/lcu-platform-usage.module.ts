@@ -9,9 +9,10 @@ import { LcuDirective } from './directives/lcu.directive';
 import { LcuPlatformUsagePlatformUsageElementComponent } from './elements/platform-usage/platform-usage.component';
 import { DataGridComponent } from './controls/data-grid/data-grid.component';
 import { DataGridModule} from '@lowcodeunit/data-grid';
+import { TotalBoxComponent } from './controls/total-box/total-box.component';
 
 @NgModule({
-  declarations: [LcuComponent, LcuDirective, LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent],
+  declarations: [LcuComponent, LcuDirective, LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent, TotalBoxComponent],
   imports: [
     FathymSharedModule,
     FormsModule,
@@ -21,8 +22,8 @@ import { DataGridModule} from '@lowcodeunit/data-grid';
     MatTabsModule,
     DataGridModule
   ],
-  exports: [LcuComponent, LcuDirective, LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent],
-  entryComponents: [LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent]
+  exports: [LcuComponent, LcuDirective, LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent, TotalBoxComponent],
+  entryComponents: [LcuPlatformUsagePlatformUsageElementComponent, DataGridComponent, TotalBoxComponent]
 })
 export class LcuPlatformUsageModule {
   static forRoot(): ModuleWithProviders {
