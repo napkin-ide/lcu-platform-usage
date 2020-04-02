@@ -21,7 +21,7 @@ import { LcuPlatformUsageModule } from '@napkin-ide/lcu-platform-usage-common';
     FathymSharedModule,
     MaterialModule,
     FlexLayoutModule,
-    LcuPlatformUsageModule.forRoot()
+    LcuPlatformUsageModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent],

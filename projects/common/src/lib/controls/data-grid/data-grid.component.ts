@@ -1,24 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Constants } from '../../utils/constants';
 import { UserInfoModel } from '../../models/user-info.model';
+import { DataGridModel } from '../../models/data-grid.model';
 
 @Component({
-  selector: 'lcu-data-grid',
+  selector: 'lcu-data-grid-1',
   templateUrl: './data-grid.component.html',
   styleUrls: ['./data-grid.component.scss']
 })
 export class DataGridComponent implements OnInit {
+  
+  @Input('data-grid') DataGrid: DataGridModel;
 
-  public UserData: Array<UserInfoModel>;
-
-  public DisplayedColumns: Array<string>;
 
   constructor() {
-    this.UserData = Constants.USER_DATA;
-    this.DisplayedColumns = ['Email', 'Username', 'FreeTrialSignUp', 'ExpirationDate', 'PaidSignUpDate'];
    }
 
   ngOnInit(): void {
+    console.log("Data Grid: ", this.DataGrid);
     
   }
 

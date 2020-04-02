@@ -1,0 +1,6 @@
+<div  class="box-stats-container" fxLayout="row" fxLayoutAlign="space-around center">
+    <div *ngFor="let box of BoxTotals" class="total-box" fxLayout="column" fxLayoutAlign="center center">
+        <h3>{{box.Title}}</h3>
+        <div *ngFor="let stat of box.Stats">{{stat}}</div>
+    </div>
+</div>
