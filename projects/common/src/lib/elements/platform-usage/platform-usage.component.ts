@@ -1,4 +1,4 @@
-import { Component, OnInit, Injector } from '@angular/core';
+import { Component, OnInit, Injector, AfterContentInit } from '@angular/core';
 import { LCUElementContext, LcuElementComponent, DataPipeConstants } from '@lcu/common';
 import { Constants } from '../../utils/constants';
 import { UserInfoModel } from '../../models/user-info.model';
@@ -6,6 +6,7 @@ import { DataGridModel } from '../../models/data-grid.model';
 import { ColumnDefinition,  DataGridPagination, DataGridFeatures, DataGridConfig } from '@lowcodeunit/data-grid';
 import { of } from 'rxjs/internal/observable/of';
 import { BoxInfoModel } from '../../models/box-info.model';
+import { UserManagementStateContext } from '../../state/user-management/user-management-state.context';
 
 export class LcuPlatformUsagePlatformUsageElementState { }
 
@@ -18,7 +19,7 @@ export const SELECTOR_LCU_PLATFORM_USAGE_PLATFORM_USAGE_ELEMENT = 'lcu-platform-
   templateUrl: './platform-usage.component.html',
   styleUrls: ['./platform-usage.component.scss']
 })
-export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementComponent<LcuPlatformUsagePlatformUsageContext> implements OnInit {
+export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementComponent<LcuPlatformUsagePlatformUsageContext> implements OnInit, AfterContentInit {
   //  Fields
 
   //  Properties
@@ -62,6 +63,8 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
    * The Percentage of paid subscribers who used the free trial
    */
   public FreeToPaidPercentage: string;
+
+  public State: any;
 
   /**
    * The Percentage of paid subscribers who skipped the free trial
@@ -145,8 +148,11 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
   }
 
   //  Constructors
-  constructor(protected injector: Injector) {
+  constructor(protected injector: Injector,
+    protected userMgmtState: UserManagementStateContext,
+    ) {
     super(injector);
+    // this.State = {};
     this.PaidSubscribers = new Array<UserInfoModel>();
     this.ActiveUsers = new Array<UserInfoModel>();
     this.ExpiredUsers = new Array<UserInfoModel>();
@@ -160,6 +166,8 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
   //  Life Cycle
   public ngOnInit() {
     super.ngOnInit();
+    
+    
     this.SetActiveGridParameters();
     this.SetExpiredGridParameters();
     this.SetPaidGridParameters();
@@ -167,9 +175,18 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     this.SetUpBoxInfo();
   }
 
+
+  public  ngAfterContentInit(): void {
+    this.userMgmtState.Context.subscribe((state: any) => {
+      this.State = state;
+      console.log('UserManagement state: ', this.State);
+      this.stateChanged();
+    });
+  }
+
   //  API Methods
 
-  //  Helpers
+  
   public SetPaidGridParameters(): void {
     // hardcoding values for demo, real world these would be pushed in
     this.PaidSubscribers = Constants.PAID_DATA;
@@ -322,7 +339,10 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     console.log("Grid params: ", this.ExpiredGridParameters)
   }
 
-
+//  Helpers
+  protected stateChanged(){
+    console.log("State Changed: ", this.State);
+  }
   /**
    * Setting up grid features
    */
