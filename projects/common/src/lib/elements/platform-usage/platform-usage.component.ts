@@ -7,6 +7,8 @@ import { ColumnDefinition,  DataGridPagination, DataGridFeatures, DataGridConfig
 import { of } from 'rxjs/internal/observable/of';
 import { BoxInfoModel } from '../../models/box-info.model';
 import { UserManagementStateContext } from '../../state/user-management/user-management-state.context';
+import { templateJitUrl } from '@angular/compiler';
+import { LicenseAccessToken } from '../../models/license-access-token.model';
 
 export class LcuPlatformUsagePlatformUsageElementState { }
 
@@ -23,16 +25,25 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
   //  Fields
 
   //  Properties
-  public UserData: any;
+  /**
+   * The list of all the accesstokens converted into user info model
+   */
+  public SubscriberList: Array<UserInfoModel>;
 
+/**
+ * Column names to be displayed 
+ */
   public DisplayedColumns: Array<string>;
 
+/**
+ * The data grid used to display all info
+ */
   public DataGrid: DataGridModel;
 
   /**
    * The list of Active Free trial users coming from state
    */
-  public ActiveUsers: Array<UserInfoModel>;
+  public ActiveTrialUsers: Array<UserInfoModel>;
 
 /**
  * The list of expired users coming from state
@@ -72,9 +83,9 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
   public StraightToPaidPercentage: string;
 
   /**
-   * The info that is passed to the totals box for active users
+   * The info that is passed to the totals box for active Free trial users
    */
-  public ActiveUsersStats: Array<BoxInfoModel>;
+  public ActiveTrialUsersStats: Array<BoxInfoModel>;
 
   /**
    * The info that is passed to the totals box for expired users
@@ -152,48 +163,66 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     protected userMgmtState: UserManagementStateContext,
     ) {
     super(injector);
-    // this.State = {};
     this.PaidSubscribers = new Array<UserInfoModel>();
-    this.ActiveUsers = new Array<UserInfoModel>();
+    this.ActiveTrialUsers = new Array<UserInfoModel>();
     this.ExpiredUsers = new Array<UserInfoModel>();
     this.StraightToPaid = 0;
     this.FreeToPaid = 0;
-    //   this.DataGrid = new DataGridModel();
-    //   this.DataGrid.UserData = Constants.USER_DATA;
-    //   this.DataGrid.DisplayedColumns = ['Email', 'Username', 'FreeTrialSignUp', 'ExpirationDate', 'PaidSignUpDate'];
+    this.TotalFreeTrialSignUps = 0;
+    this.FreeToPaidPercentage = "0%";
+    this.StraightToPaidPercentage = "0%";
   }
 
   //  Life Cycle
   public ngOnInit() {
     super.ngOnInit();
-    
-    
-    this.SetActiveGridParameters();
-    this.SetExpiredGridParameters();
-    this.SetPaidGridParameters();
-    this.SetTotals();
-    this.SetUpBoxInfo();
-  }
-
-
-  public  ngAfterContentInit(): void {
     this.userMgmtState.Context.subscribe((state: any) => {
       this.State = state;
       console.log('UserManagement state: ', this.State);
       this.stateChanged();
     });
+    
+    
+    this.setActiveGridParameters();
+    this.setExpiredGridParameters();
+    this.setPaidGridParameters();
+    this.setUpBoxInfo();
+
+
+    
+  }
+
+
+  public  ngAfterContentInit(): void {
   }
 
   //  API Methods
 
-  
-  public SetPaidGridParameters(): void {
+  //  Helpers
+
+  /**
+ * Runs when the state changes
+ */
+protected stateChanged(){
+  console.log("State Changed: ", this.State);
+  if(this.State.Subscribers){
+    this.convertSubscribers();
+    this.buildActiveTrialUsers();
+    this.buildExpiredUsers();
+    this.buildPaidSubscribers();
+    this.SetTotalFreeSignUps();
+    this.setUpBoxInfo();
+  } 
+}
+
+  /**
+   * Sets up the paid grid parameters
+   */
+  protected setPaidGridParameters(): void {
     // hardcoding values for demo, real world these would be pushed in
-    this.PaidSubscribers = Constants.PAID_DATA;
-    let paidData = of(Constants.PAID_DATA);
-    console.log("paidData: ", Constants.PAID_DATA)
-
-
+    // this.PaidSubscribers = Constants.PAID_DATA;
+    let paidData = of(this.PaidSubscribers);
+    // console.log("paidData: ", Constants.PAID_DATA)
     this.paidColumnDefs = [
       new ColumnDefinition(
         'Username',
@@ -232,14 +261,17 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
 
     // showing grid column headers
     this.PaidGridParameters = new DataGridConfig(paidData, this.paidColumnDefs);
-    console.log("Grid params: ", this.PaidGridParameters)
+    // console.log("Grid params: ", this.PaidGridParameters)
   }
 
-  public SetActiveGridParameters(): void {
+  /**
+   * Sets up the Active grid parameters
+   */
+  protected setActiveGridParameters(): void {
 
     // hardcoding values for demo, real world these would be pushed in
-    this.ActiveUsers = Constants.ACTIVE_DATA;
-    let activeData = of(Constants.ACTIVE_DATA);
+    // this.ActiveUsers = Constants.ACTIVE_DATA;
+    let activeData = of(this.ActiveTrialUsers);
 
 
 
@@ -288,15 +320,18 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
 
     // showing grid column headers
     this.ActiveGridParameters = new DataGridConfig(activeData, this.activeColumnDefs);
-    console.log("Grid params: ", this.ActiveGridParameters)
+    // console.log("Grid params: ", this.ActiveGridParameters)
   }
 
 
-  public SetExpiredGridParameters(): void {
+  /**
+   * Sets up the expired grid params
+   */
+  public setExpiredGridParameters(): void {
 
     // hardcoding values for demo, real world these would be pushed in
-    this.ExpiredUsers = Constants.EXPIRED_DATA;
-    let ExpiredData = of(Constants.EXPIRED_DATA);
+    // this.ExpiredUsers = Constants.EXPIRED_DATA;
+    let ExpiredData = of(this.ExpiredUsers);
 
 
     this.expiredColumnDefs = [
@@ -336,15 +371,12 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
 
     // showing grid column headers
     this.ExpiredGridParameters = new DataGridConfig(ExpiredData, this.expiredColumnDefs);
-    console.log("Grid params: ", this.ExpiredGridParameters)
+    // console.log("Grid params: ", this.ExpiredGridParameters)
   }
 
-//  Helpers
-  protected stateChanged(){
-    console.log("State Changed: ", this.State);
-  }
+
   /**
-   * Setting up grid features
+   * Setting up grid features and styles
    */
   protected setGridFeatures(): void {
     const paginationDetails: DataGridPagination = new DataGridPagination();
@@ -361,44 +393,125 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     this.GridFeatures = features;
   }
 
-  protected SetTotals(){
-    this.SetTotalFreeSignUps();
-    this.CalcPaidVsFree();
-  }
+  /**
+   * calculates and sets up the total amount of free trial accounts
+   * 
+   * expired accounts + the active free trial accounts 
+   */
   protected SetTotalFreeSignUps(){
     // Using Hard coded values will need to change when state comes in
-    this.TotalFreeTrialSignUps = Constants.EXPIRED_DATA.length + Constants.ACTIVE_DATA.length;
+    // this.TotalFreeTrialSignUps = Constants.EXPIRED_DATA.length + Constants.ACTIVE_DATA.length;
+    this.TotalFreeTrialSignUps = this.ExpiredUsers.length + this.ActiveTrialUsers.length;
+
   }
 
-  protected CalcPaidVsFree(){
-    this.PaidSubscribers.forEach(user => {
-      if(user.FreeTrialSignUp){
-        console.log("free to paid")
-        this.FreeToPaid += 1;
-      }
-      else{
-        this.StraightToPaid +=1;
-      }
+
+  protected convertSubscribers(){
+    this.SubscriberList = new Array<UserInfoModel>();
+
+    this.State.Subscribers.forEach((subscriber: LicenseAccessToken) => {
+      let tempUser: UserInfoModel;
+      //filter out any duplicate users by email address
+      let tempSubscriber = this.State.Subscribers.filter((sub: LicenseAccessToken) => subscriber.UserName === sub.UserName);
+      //These should remain constant accross all instances of the tempSubscriber
+      tempUser.Email = subscriber.UserName;
+      tempUser.Organization = subscriber.Registry;
+
+      // Unsure if this is actually how its designed so commented out until data flows
+      // if(subscriber.EnterpriseOverride.UserName){
+      //   tempUser.Username = subscriber.EnterpriseOverride.UserName;
+      // }
+      // else{
+      //   tempUser.Username = subscriber.UserName;
+      // }
+      tempSubscriber.forEach((temp: LicenseAccessToken) => {
+        if(temp.Lookup === "Free Trial"){
+          tempUser.FreeTrialSignUp = temp.AccessStartDate;
+        }
+        else{
+          tempUser.PaidSignUpDate = temp.AccessStartDate;
+        }
+        if(temp.ExpirationDate){
+          tempUser.ExpirationDate = temp.ExpirationDate;
+        }
+        if(temp.ExpirationDate && temp.AccessStartDate){  
+          tempUser.DaysRemaining = (subscriber.ExpirationDate.getTime() - subscriber.AccessStartDate.getTime()) / (1000 * 3600 * 24);
+        }
+      });
       
-    }
-    
-    );
-    this.FreeToPaidPercentage = Math.round((this.FreeToPaid / this.PaidSubscribers.length)*100).toString() +'%';
-    this.StraightToPaidPercentage = Math.round((this.StraightToPaid / this.PaidSubscribers.length)*100).toString() +'%';
+      this.SubscriberList.push(tempUser);
+    });
   }
 
-  protected SetUpBoxInfo(){
-    this.ActiveUsersStats = new Array<BoxInfoModel>();
-    this.ActiveUsersStats.push(new BoxInfoModel("Total Active Users", new Array<string>(this.ActiveUsers.length.toString())));
+  protected setUpBoxInfo(){
+    //ACTIVE USER STATS
+    this.ActiveTrialUsersStats = new Array<BoxInfoModel>();
+    this.ActiveTrialUsersStats.push(new BoxInfoModel("Total Active Trial Users", new Array<string>(this.ActiveTrialUsers.length.toString())));
 
+    //EXPIRED USER STATS
     this.ExpiredUsersStats = new Array<BoxInfoModel>();
     this.ExpiredUsersStats.push(new BoxInfoModel("Total Expired Users", new Array<string>(this.ExpiredUsers.length.toString())));
     this.ExpiredUsersStats.push(new BoxInfoModel("Total Free Trial Sign Ups", new Array<string>(this.TotalFreeTrialSignUps.toString())));
-
+    
+    //PAID SUBSCRIBERS STATS
     this.PaidSubscribersStats = new Array<BoxInfoModel>();
     this.PaidSubscribersStats.push(new BoxInfoModel("Total Paid Subscribers", new Array<string>(this.PaidSubscribers.length.toString())));
     this.PaidSubscribersStats.push(new BoxInfoModel("Used Free Trial", new Array<string>(this.FreeToPaid.toString() +" (" + this.FreeToPaidPercentage + ")")));
     this.PaidSubscribersStats.push(new BoxInfoModel("Skipped Free Trial", new Array<string>(this.StraightToPaid.toString() +" ("+ this.StraightToPaidPercentage +")")));
 
+  }
+/**
+ * Builds the Active trial users array
+ */
+  protected buildActiveTrialUsers(){
+    this.SubscriberList.forEach((subscriber: UserInfoModel)=>{
+      if(subscriber.DaysRemaining > 0 && subscriber.FreeTrialSignUp){
+        this.ActiveTrialUsers.push();
+      }
+    });
+  }
+
+  /**
+   * builds the expired trial users array
+   */
+  protected buildExpiredUsers(){
+    this.SubscriberList.forEach((subscriber: UserInfoModel)=>{
+      if(subscriber.DaysRemaining < 0  && subscriber.FreeTrialSignUp){
+        this.ExpiredUsers.push();
+      }
+    });
+  }
+
+  /**
+   * builds the paid subscribers array and calculates the amount of paid subscribers that 
+   * 
+   * started with the free trial and those that went straight for the paid version 
+   * 
+   * as well as percentages
+   */
+  protected buildPaidSubscribers(){
+    this.SubscriberList.forEach((subscriber: UserInfoModel)=>{
+      if(subscriber.PaidSignUpDate){
+        this.PaidSubscribers.push();
+
+        if(subscriber.FreeTrialSignUp){
+          this.FreeToPaid += 1;
+        }
+        else{
+          this.StraightToPaid += 1;
+        }
+      }
+      
+    });
+    //calc amount of users who went from free to paid
+    this.FreeToPaidPercentage = Math.round((this.FreeToPaid / this.PaidSubscribers.length)*100).toString() +'%';
+    if(!this.FreeToPaidPercentage){
+      this.FreeToPaidPercentage = "0%"
+    }
+    //calc amount of users who went straight to the paid version
+    this.StraightToPaidPercentage = Math.round((this.StraightToPaid / this.PaidSubscribers.length)*100).toString() +'%';
+    if(!this.StraightToPaidPercentage){
+      this.StraightToPaidPercentage = "0%"
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { Status } from '@lcu/common';
+import { LicenseAccessToken } from '../../models/license-access-token.model';
 
 export class UserManagementState {
   public Booted?: boolean;
@@ -42,6 +43,8 @@ export class UserManagementState {
   public SetupStep?: NapkinIDESetupStepTypes;
 
   public Status?: Status;
+
+  public Subscribers: LicenseAccessToken[]; 
 
   public Template?: string;
 

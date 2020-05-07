@@ -98,6 +98,15 @@ export class UserManagementStateContext extends StateContext<
     });
   }
 
+  public ListSubscribers(identityManagerClient: any){
+    this.Execute({
+      Arguments: {
+        IdentityManagerClient: identityManagerClient
+      },
+      Type: 'ListSubscribers'
+    });
+  }
+
   //  Helpers
   protected defaultValue() {
     return { Loading: true } as UserManagementState;
