@@ -9,6 +9,7 @@ import { BoxInfoModel } from '../../models/box-info.model';
 import { UserManagementStateContext } from '../../state/user-management/user-management-state.context';
 import { templateJitUrl } from '@angular/compiler';
 import { LicenseAccessToken } from '../../models/license-access-token.model';
+import { UserManagementState } from '../../state/user-management/user-management.state';
 
 export class LcuPlatformUsagePlatformUsageElementState { }
 
@@ -75,7 +76,11 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
    */
   public FreeToPaidPercentage: string;
 
-  public State: any;
+
+/**
+ * The user management state
+ */
+  public State: UserManagementState;
 
   /**
    * The Percentage of paid subscribers who skipped the free trial
@@ -187,7 +192,8 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     this.setExpiredGridParameters();
     this.setPaidGridParameters();
     this.setUpBoxInfo();
-
+    this.userMgmtState.ListSubscribers();
+    
 
     
   }
@@ -205,7 +211,8 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
  */
 protected stateChanged(){
   console.log("State Changed: ", this.State);
-  if(this.State.Subscribers){
+  
+  if(this.State.Subscribers && this.State.Subscribers.length > 0){
     this.convertSubscribers();
     this.buildActiveTrialUsers();
     this.buildExpiredUsers();
@@ -410,11 +417,11 @@ protected stateChanged(){
     this.SubscriberList = new Array<UserInfoModel>();
 
     this.State.Subscribers.forEach((subscriber: LicenseAccessToken) => {
-      let tempUser: UserInfoModel;
+      let tempUser: UserInfoModel = new UserInfoModel();
       //filter out any duplicate users by email address
-      let tempSubscriber = this.State.Subscribers.filter((sub: LicenseAccessToken) => subscriber.UserName === sub.UserName);
+      let tempSubscriber = this.State.Subscribers.filter((sub: LicenseAccessToken) => subscriber.Username === sub.Username);
       //These should remain constant accross all instances of the tempSubscriber
-      tempUser.Email = subscriber.UserName;
+      tempUser.Email = subscriber.Username;
       tempUser.Organization = subscriber.Registry;
 
       // Unsure if this is actually how its designed so commented out until data flows
@@ -426,19 +433,19 @@ protected stateChanged(){
       // }
       tempSubscriber.forEach((temp: LicenseAccessToken) => {
         if(temp.Lookup === "Free Trial"){
-          tempUser.FreeTrialSignUp = temp.AccessStartDate;
+          tempUser.FreeTrialSignUp = this.convertStringToDate(temp.AccessStartDate);
         }
         else{
-          tempUser.PaidSignUpDate = temp.AccessStartDate;
+          tempUser.PaidSignUpDate = this.convertStringToDate(temp.AccessStartDate);
         }
         if(temp.ExpirationDate){
-          tempUser.ExpirationDate = temp.ExpirationDate;
+          tempUser.ExpirationDate = this.convertStringToDate(temp.ExpirationDate);
         }
-        if(temp.ExpirationDate && temp.AccessStartDate){  
-          tempUser.DaysRemaining = (subscriber.ExpirationDate.getTime() - subscriber.AccessStartDate.getTime()) / (1000 * 3600 * 24);
+        if(temp.ExpirationDate && temp.AccessStartDate){ 
+          tempUser.DaysRemaining = (tempUser.ExpirationDate.getTime() - this.convertStringToDate(subscriber.AccessStartDate).getTime()) / (1000 * 3600 * 24);
         }
       });
-      
+      console.log("temp user = ", tempUser);
       this.SubscriberList.push(tempUser);
     });
   }
@@ -513,5 +520,13 @@ protected stateChanged(){
     if(!this.StraightToPaidPercentage){
       this.StraightToPaidPercentage = "0%"
     }
+  }
+
+  protected convertStringToDate(date: string): Date{
+    let millSecs = Date.parse(date);
+    let newDate = new Date(0);
+    newDate.setTime(millSecs);
+    // console.log("Date = ", newDate);
+    return newDate;
   }
 }

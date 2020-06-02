@@ -2,13 +2,13 @@ export class LicenseAccessToken{
     /**
      * The start date/ when the user aquired permissions to the access token
      */
-    public AccessStartDate: Date;
+    public AccessStartDate: string;
 
 
 /**
  * When the token expires
  */
-    public ExpirationDate: Date;
+    public ExpirationDate: string;
 
 
 
@@ -65,5 +65,5 @@ export class LicenseAccessToken{
     /**
      * Username linked to account
      */
-    public UserName: string;
+    public Username: string;
 }

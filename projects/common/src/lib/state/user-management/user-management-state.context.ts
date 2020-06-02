@@ -97,15 +97,19 @@ export class UserManagementStateContext extends StateContext<
       Type: 'SetUserType'
     });
   }
-
-  public ListSubscribers(identityManagerClient: any){
+/**
+ * Returns a list of subscribers with the provided identityManagerClient
+ * 
+ * @param identityManagerClient 
+ */
+  public ListSubscribers(){
     this.Execute({
       Arguments: {
-        IdentityManagerClient: identityManagerClient
       },
       Type: 'ListSubscribers'
     });
   }
+
 
   //  Helpers
   protected defaultValue() {
