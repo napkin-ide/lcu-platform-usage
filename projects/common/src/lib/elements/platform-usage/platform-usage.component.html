@@ -2,21 +2,21 @@
 <mat-tab-group>
 
 
-    <!-- ACTIVE TRIAL USERS -->
+    <!-- ACTIVE FREE TRIAL USERS -->
     <mat-tab label="Active Trial Users">
         <h1>Active Trial Users </h1>
         <div class="data-grid-container">
-        <lcu-data-grid [Config]="ActiveGridParameters"></lcu-data-grid>
+            <lcu-data-grid [Config]="ActiveGridParameters"></lcu-data-grid>
         </div>
         <hr>
-        <lcu-total-box [box-totals]="ActiveUsersStats"></lcu-total-box>
+        <lcu-total-box [box-totals]="ActiveTrialUsersStats"></lcu-total-box>
     </mat-tab>
 
     <!-- EXPIRED TRIAL USERS -->
     <mat-tab label="Expired Trial Users">
         <h1>Expired Trial Users</h1>
         <div class="data-grid-container">
-        <lcu-data-grid [Config]="ExpiredGridParameters"></lcu-data-grid>
+            <lcu-data-grid [Config]="ExpiredGridParameters"></lcu-data-grid>
         </div>
         <hr>
         <lcu-total-box [box-totals]="ExpiredUsersStats"></lcu-total-box>
@@ -26,7 +26,7 @@
     <mat-tab label="Paid Subscribers">
         <h1> Paid Subscribers </h1>
         <div class="data-grid-container">
-        <lcu-data-grid [Config]="PaidGridParameters"></lcu-data-grid>
+            <lcu-data-grid [Config]="PaidGridParameters"></lcu-data-grid>
         </div>
         <hr>
         <lcu-total-box [box-totals]="PaidSubscribersStats"></lcu-total-box>
