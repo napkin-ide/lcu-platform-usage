@@ -183,16 +183,14 @@ export class LcuPlatformUsagePlatformUsageElementComponent extends LcuElementCom
     super.ngOnInit();
     this.userMgmtState.Context.subscribe((state: any) => {
       this.State = state;
-      console.log('UserManagement state: ', this.State);
+      // console.log('UserManagement state: ', this.State);
       this.stateChanged();
     });
     
     
-    this.setActiveGridParameters();
-    this.setExpiredGridParameters();
-    this.setPaidGridParameters();
-    this.setUpBoxInfo();
+    
     this.userMgmtState.ListSubscribers();
+    
     
 
     
@@ -218,6 +216,9 @@ protected stateChanged(){
     this.buildExpiredUsers();
     this.buildPaidSubscribers();
     this.SetTotalFreeSignUps();
+    this.setActiveGridParameters();
+    this.setExpiredGridParameters();
+    this.setPaidGridParameters();
     this.setUpBoxInfo();
   } 
 }
@@ -281,7 +282,6 @@ protected stateChanged(){
     let activeData = of(this.ActiveTrialUsers);
 
 
-
     this.activeColumnDefs = [
       new ColumnDefinition(
         'Username',
@@ -298,7 +298,7 @@ protected stateChanged(){
         false
       ),
       new ColumnDefinition(
-        'FreeTrialSignUp',
+        'PaidSignUpDate',
         'Sign up Date',
         true,
         true,
@@ -357,8 +357,8 @@ protected stateChanged(){
         false
       ),
       new ColumnDefinition(
-        'FreeTrialSignUp',
-        'Free Trial Sign up Date',
+        'PaidSignUpDate',
+        'Sign up Date',
         true,
         true,
         false,
@@ -445,7 +445,7 @@ protected stateChanged(){
           tempUser.DaysRemaining = (tempUser.ExpirationDate.getTime() - this.convertStringToDate(subscriber.AccessStartDate).getTime()) / (1000 * 3600 * 24);
         }
       });
-      console.log("temp user = ", tempUser);
+      // console.log("temp user = ", tempUser);
       this.SubscriberList.push(tempUser);
     });
   }
@@ -471,9 +471,11 @@ protected stateChanged(){
  * Builds the Active trial users array
  */
   protected buildActiveTrialUsers(){
+    this.ActiveTrialUsers = new Array<UserInfoModel>();
+    let today = new Date();
     this.SubscriberList.forEach((subscriber: UserInfoModel)=>{
-      if(subscriber.DaysRemaining > 0 && subscriber.FreeTrialSignUp){
-        this.ActiveTrialUsers.push();
+      if(subscriber.ExpirationDate.getTime() > today.getTime()){
+        this.ActiveTrialUsers.push(subscriber);
       }
     });
   }
@@ -482,9 +484,11 @@ protected stateChanged(){
    * builds the expired trial users array
    */
   protected buildExpiredUsers(){
+    let today = new Date()
+    this.ExpiredUsers = new Array<UserInfoModel>();
     this.SubscriberList.forEach((subscriber: UserInfoModel)=>{
-      if(subscriber.DaysRemaining < 0  && subscriber.FreeTrialSignUp){
-        this.ExpiredUsers.push();
+      if(subscriber.ExpirationDate.getTime() < today.getTime()){
+        this.ExpiredUsers.push(subscriber);
       }
     });
   }
@@ -497,9 +501,13 @@ protected stateChanged(){
    * as well as percentages
    */
   protected buildPaidSubscribers(){
+    this.PaidSubscribers = new Array<UserInfoModel>();
+    this.FreeToPaid = 0;
+    this.StraightToPaid = 0;
+    // console.log("SubList: ", this.SubscriberList);
     this.SubscriberList.forEach((subscriber: UserInfoModel)=>{
       if(subscriber.PaidSignUpDate){
-        this.PaidSubscribers.push();
+        this.PaidSubscribers.push(subscriber);
 
         if(subscriber.FreeTrialSignUp){
           this.FreeToPaid += 1;
@@ -508,7 +516,7 @@ protected stateChanged(){
           this.StraightToPaid += 1;
         }
       }
-      
+      // console.log("PAID SUBSCRIBER:", this.PaidSubscribers)
     });
     //calc amount of users who went from free to paid
     this.FreeToPaidPercentage = Math.round((this.FreeToPaid / this.PaidSubscribers.length)*100).toString() +'%';
